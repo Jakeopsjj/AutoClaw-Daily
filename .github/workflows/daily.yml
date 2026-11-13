@@ -33,6 +33,15 @@ jobs:
       - name: Install deps
         run: pip install -r requirements.txt
 
+      - name: Restore state store
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            autoclaw_cn_tokens.json
+            autoclaw_intl_tokens.json
+          key: autoclaw-daily-store-${{ github.run_id }}
+          restore-keys: |
+            autoclaw-daily-store-
       - name: Run AutoClaw CN
         env:
           AUTOCLAW_CN_TOKENS: ${{ secrets.AUTOCLAW_CN_TOKENS }}
@@ -52,4 +61,13 @@ jobs:
           DINGTALK_WEBHOOK: ${{ secrets.DINGTALK_WEBHOOK }}
           DINGTALK_SECRET: ${{ secrets.DINGTALK_SECRET }}
         run: python autoclaw_intl_daily.py
+
+      - name: Save state store
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            autoclaw_cn_tokens.json
+            autoclaw_intl_tokens.json
+          key: autoclaw-daily-store-${{ github.run_id }}
 
